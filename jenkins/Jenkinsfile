@@ -25,8 +25,13 @@ pipeline {
 
     stage('Prepare Python') {
       steps {
-        sh "python3 -m venv ${env.VENV}"
-        sh "\"${env.PIP}\" install --upgrade pip"
+        sh """
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip
+python3 -m venv ${env.VENV}
+\"${env.PIP}\" install --upgrade pip
+python3 --version
+"""
       }
     }
 
