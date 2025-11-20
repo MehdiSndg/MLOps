@@ -1,0 +1,86 @@
+schema: '2.0'
+stages:
+  prepare_data:
+    cmd: python run_pipelines.py --pipeline data
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: d1bb0e36769b33b95796c9ac3e2884ad.dir
+      size: 121955
+      nfiles: 1
+    - path: src/config/config.yaml
+      hash: md5
+      md5: 94563e1bcc0edd55afed4af9b211f292
+      size: 513
+    - path: src/data/load_data.py
+      hash: md5
+      md5: d1fa4a821add6fe09908360e2f0ca2dc
+      size: 732
+    - path: src/data/preprocess.py
+      hash: md5
+      md5: 53d95e9a98bb81e6bb1e15dd2503790f
+      size: 1022
+    - path: src/pipelines/data_pipeline.py
+      hash: md5
+      md5: 51aacfb495a2e1e51de3f85cb5b69acb
+      size: 1261
+    outs:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: a7cb3daf821ed6880fad278f6b5e49fb
+      size: 125261
+  train_model:
+    cmd: python run_pipelines.py --pipeline train
+    deps:
+    - path: data/processed/processed.csv
+      hash: md5
+      md5: a7cb3daf821ed6880fad278f6b5e49fb
+      size: 125261
+    - path: src/config/config.yaml
+      hash: md5
+      md5: 94563e1bcc0edd55afed4af9b211f292
+      size: 513
+    - path: src/config/mlflow_config.yaml
+      hash: md5
+      md5: c5c6ae5543575c5a184d64caa9590dbe
+      size: 173
+    - path: src/training/evaluate.py
+      hash: md5
+      md5: 16066320860cfb835bdc3d7128b32b7a
+      size: 1617
+    - path: src/training/train_autogluon.py
+      hash: md5
+      md5: b67c56b467a62d2d0a786f043a7a60a2
+      size: 2158
+    outs:
+    - path: artifacts/models
+      hash: md5
+      md5: c60fa15e3959723ad07a3a7decb4f008.dir
+      size: 3464269
+      nfiles: 29
+  deploy_model:
+    cmd: python run_pipelines.py --pipeline deploy
+    deps:
+    - path: artifacts/models
+      hash: md5
+      md5: c60fa15e3959723ad07a3a7decb4f008.dir
+      size: 3464269
+      nfiles: 29
+    - path: src/config/config.yaml
+      hash: md5
+      md5: 94563e1bcc0edd55afed4af9b211f292
+      size: 513
+    - path: src/pipelines/deploy_pipeline.py
+      hash: md5
+      md5: e5c5e3213645eee750566881aadc1b3d
+      size: 1519
+    - path: src/steps/register_step.py
+      hash: md5
+      md5: 21bc670319c00a942032dd36405ac977
+      size: 980
+    outs:
+    - path: artifacts/registry
+      hash: md5
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0

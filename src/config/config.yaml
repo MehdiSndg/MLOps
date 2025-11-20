@@ -1,0 +1,27 @@
+paths:
+  raw_data: "data/raw/raw.csv"
+  processed_data: "data/processed/processed.csv"
+  models_dir: "artifacts/models"
+  registry_dir: "artifacts/registry"
+
+mlflow:
+  experiment_name: "mlops_experiment"
+
+training:
+  label_column: "target"
+  time_limit: 60
+  presets: "medium_quality_faster_train"
+  eval_metric: "accuracy"
+  model_name: "autogluon_best"
+  hyperparameters:
+    NN_TORCH: []
+    GBM: {}
+    CAT: {}
+    XGB: {}
+    FASTAI: {}
+    RF: {}
+    XT: {}
+
+preprocess:
+  test_size: 0.2
+  random_state: 42

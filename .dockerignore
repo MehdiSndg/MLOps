@@ -1,0 +1,26 @@
+# Ignore git metadata and local tooling
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__/
+*.pyc
+.env
+mlflow.sqlite
+mlflow.db
+
+# Ignore local data and artifacts
+data/
+artifacts/
+mlruns/
+.dvc/
+.zen/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+
+# DVC cache/temp
+.dvc/cache/
+.dvc/tmp/

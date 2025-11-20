@@ -1,0 +1,14 @@
+name: mlops_full_pipeline
+
+entry_points:
+  data:
+    command: "python run_pipelines.py --pipeline data"
+  train:
+    command: "python run_pipelines.py --pipeline train"
+  deploy:
+    command: "python run_pipelines.py --pipeline deploy"
+  security:
+    command: "python run_pipelines.py --pipeline security"
+  all:
+    command: "python run_pipelines.py --pipeline all"
+

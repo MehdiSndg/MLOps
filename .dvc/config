@@ -1,0 +1,5 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = s3://mlops-bucket-mehdi/data
+    endpointurl = https://s3.eu-north-1.amazonaws.com

@@ -1,0 +1,5 @@
+tracking_uri: http://localhost:5001
+backend_uri: sqlite:///mlflow.sqlite
+artifact_root: s3://mlops-artifacts-placeholder/mlflow
+port: 5001
+experiment_name: mlops_experiment

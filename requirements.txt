@@ -1,0 +1,15 @@
+dvc[s3]==3.64.0
+boto3==1.40.70
+zenml==0.50.0
+mlflow==2.15.1
+autogluon.tabular[lightgbm,catboost,xgboost]==1.4.0
+numpy<2.0
+pandas==2.1.4
+scikit-learn>=1.5.2,<1.6
+pyyaml==6.0.3
+python-dotenv==1.2.1
+lightgbm==4.6.0
+catboost==1.2.8
+xgboost==3.0.5
+passlib==1.7.4
+typing_extensions>=4.9.0

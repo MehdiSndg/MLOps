@@ -1,0 +1,113 @@
+pipeline {
+  agent any
+
+  environment {
+    VENV = "${WORKSPACE}/.venv"
+    PYTHON = "${env.VENV}/Scripts/python"
+    PIP = "${env.VENV}/Scripts/pip"
+    MLFLOW_PORT = "5001"
+    MLFLOW_SERVER_WAIT_SECONDS = "60"
+    MLFLOW_EXPERIMENT = "mlops_experiment"
+    AUTO_START_MLFLOW_SERVER = "false"
+    DVC_REMOTE_NAME = "myremote"
+    LOG_LEVEL = "INFO"
+  }
+
+  options {
+    timestamps()
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Prepare Python') {
+      steps {
+        bat "python -m venv ${env.VENV}"
+        bat "\"${env.PYTHON}\" -m pip install --upgrade pip"
+      }
+    }
+
+    stage('Install Dependencies') {
+      steps {
+        bat "${env.PIP} install --no-cache-dir -r requirements.txt"
+      }
+    }
+
+    stage('Create .env file') {
+      steps {
+        withCredentials([
+            usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY'),
+            string(credentialsId: 'aws-region', variable: 'AWS_DEFAULT_REGION'),
+            string(credentialsId: 'dvc-bucket-url', variable: 'DVC_BUCKET_URL'),
+            string(credentialsId: 'dvc-endpoint', variable: 'DVC_ENDPOINT'),
+            string(credentialsId: 'mlflow-tracking-uri', variable: 'MLFLOW_TRACKING_URI'),
+            string(credentialsId: 'mlflow-backend-uri', variable: 'MLFLOW_BACKEND_URI'),
+            string(credentialsId: 'mlflow-artifact-root', variable: 'MLFLOW_ARTIFACT_ROOT')
+        ]) {
+          writeFile file: '.env', text: """
+AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+DVC_BUCKET_URL=${DVC_BUCKET_URL}
+DVC_ENDPOINT=${DVC_ENDPOINT}
+DVC_REMOTE_NAME=${env.DVC_REMOTE_NAME}
+MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+MLFLOW_PORT=${env.MLFLOW_PORT}
+MLFLOW_BACKEND_URI=${MLFLOW_BACKEND_URI}
+MLFLOW_ARTIFACT_ROOT=${MLFLOW_ARTIFACT_ROOT}
+MLFLOW_EXPERIMENT=${env.MLFLOW_EXPERIMENT}
+MLFLOW_SERVER_WAIT_SECONDS=${env.MLFLOW_SERVER_WAIT_SECONDS}
+AUTO_START_MLFLOW_SERVER=${env.AUTO_START_MLFLOW_SERVER}
+LOG_LEVEL=${env.LOG_LEVEL}
+"""
+        }
+      }
+    }
+
+    stage('DVC Pull') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+          bat "cd /d \"%WORKSPACE%\" && \"${env.PYTHON}\" -m dvc pull"
+        }
+      }
+    }
+
+    stage('Run Pipelines') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+          bat "cd /d \"%WORKSPACE%\" && \"${env.PYTHON}\" run_pipelines.py --pipeline all"
+        }
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        bat "docker build -t mlops_full_pipeline -f docker/Dockerfile ."
+      }
+    }
+
+    stage('DVC Push') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+          bat "cd /d \"%WORKSPACE%\" && \"${env.PYTHON}\" -m dvc push"
+        }
+      }
+    }
+
+    stage('Archive Artifacts') {
+      steps {
+        archiveArtifacts artifacts: 'artifacts/**/*', fingerprint: true
+      }
+    }
+  }
+
+  post {
+    always {
+      cleanWs()
+    }
+  }
+}

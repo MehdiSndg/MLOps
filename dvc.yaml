@@ -1,0 +1,30 @@
+stages:
+  prepare_data:
+    cmd: python run_pipelines.py --pipeline data
+    deps:
+      - src/pipelines/data_pipeline.py
+      - src/data/load_data.py
+      - src/data/preprocess.py
+      - src/config/config.yaml
+      - data/raw
+    outs:
+      - data/processed/processed.csv
+  train_model:
+    cmd: python run_pipelines.py --pipeline train
+    deps:
+      - data/processed/processed.csv
+      - src/training/train_autogluon.py
+      - src/training/evaluate.py
+      - src/config/config.yaml
+      - src/config/mlflow_config.yaml
+    outs:
+      - artifacts/models
+  deploy_model:
+    cmd: python run_pipelines.py --pipeline deploy
+    deps:
+      - artifacts/models
+      - src/pipelines/deploy_pipeline.py
+      - src/steps/register_step.py
+      - src/config/config.yaml
+    outs:
+      - artifacts/registry
