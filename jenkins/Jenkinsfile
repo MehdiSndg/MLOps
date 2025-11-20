@@ -23,7 +23,7 @@ pipeline {
         withCredentials([
           string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
           string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
-          string(credentialsId: 'aws-region', variable: 'AWS_DEFAULT_REGION'),
+          string(credentialsId: 'aws-default-region', variable: 'AWS_DEFAULT_REGION'),
           string(credentialsId: 'dvc-bucket-url', variable: 'DVC_BUCKET_URL'),
           string(credentialsId: 'dvc-endpoint', variable: 'DVC_ENDPOINT'),
           string(credentialsId: 'dvc-remote-name', variable: 'DVC_REMOTE_NAME'),
