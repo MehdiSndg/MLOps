@@ -87,6 +87,31 @@ set +a
       }
     }
 
+    stage('ML Security Scan') {
+      steps {
+        sh '''
+python -m venv .venv
+. .venv/bin/activate
+pip install --upgrade pip
+pip install --no-cache-dir garak
+set -a
+. ./.env
+set +a
+garak scan local:my_model --report garak_report.json || true
+'''
+        archiveArtifacts artifacts: 'garak_report.json', allowEmptyArchive: true, fingerprint: true
+      }
+    }
+
+    stage('Log Security Metrics') {
+      steps {
+        sh '''
+. .venv/bin/activate
+python ml_security_logger.py --report garak_report.json
+'''
+      }
+    }
+
     stage('Docker Build (Optional)') {
       steps {
         sh '''
