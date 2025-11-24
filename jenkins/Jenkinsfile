@@ -90,19 +90,10 @@ set +a
     stage('ML Security Scan') {
       steps {
         sh '''
-python -m venv .sec-venv
-. .sec-venv/bin/activate
-pip install --upgrade pip
-pip install --no-cache-dir bandit safety presidio-analyzer presidio-anonymizer spacy
-python -m spacy download en_core_web_sm
 bandit -r src -f json -o bandit_report.json || true
 safety check --json --file requirements.txt > safety_report.json || true
 python src/steps/security/run_presidio_scan.py --input data/processed/processed.csv --output presidio_report.json || true
-curl -sSL https://github.com/aquasecurity/trivy/releases/download/v0.56.2/trivy_0.56.2_Linux-64bit.tar.gz -o trivy.tar.gz
-tar -xzf trivy.tar.gz
-chmod +x trivy
-./trivy fs --security-checks vuln,secret --format json --output trivy_report.json . || true
-rm -rf trivy trivy.tar.gz
+trivy fs --security-checks vuln,secret --format json --output trivy_report.json . || true
 '''
         archiveArtifacts artifacts: 'bandit_report.json,safety_report.json,presidio_report.json,trivy_report.json', allowEmptyArchive: true, fingerprint: true
       }
@@ -111,7 +102,6 @@ rm -rf trivy trivy.tar.gz
     stage('Log Security Metrics') {
       steps {
         sh '''
-. .sec-venv/bin/activate
 python ml_security_logger.py --reports bandit_report.json safety_report.json presidio_report.json trivy_report.json
 '''
       }
@@ -150,7 +140,6 @@ dvc push
       steps {
         sh '''
 rm -f .env
-rm -rf .sec-venv
 '''
       }
     }
