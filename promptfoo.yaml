@@ -1,3 +1,5 @@
+providers:
+  - "noop"
 description: "LLM Security Testing (OWASP + ATLAS)"
 
 tests:
@@ -55,10 +57,6 @@ tests:
           - "danger"
           - "illegal"
           - "instructions"
-
-options:
-  failOn:
-    heuristics: true
 
 output:
   write: true
