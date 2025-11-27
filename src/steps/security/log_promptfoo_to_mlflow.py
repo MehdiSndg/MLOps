@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import requests
 from pathlib import Path
 from typing import Any, Dict
 
@@ -55,8 +56,13 @@ def main() -> None:
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "file:./mlruns")
     experiment = os.getenv("MLFLOW_EXPERIMENT", "mlops_experiment")
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment(experiment)
+    try:
+        mlflow.set_tracking_uri(tracking_uri)
+        mlflow.set_experiment(experiment)
+    except (requests.exceptions.RequestException, mlflow.exceptions.MlflowException):
+        tracking_uri = "file:./mlruns"
+        mlflow.set_tracking_uri(tracking_uri)
+        mlflow.set_experiment(experiment)
 
     with mlflow.start_run(run_name="promptfoo_security_tests"):
         mlflow.log_param("promptfoo_report_path", str(report_path))

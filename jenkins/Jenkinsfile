@@ -91,7 +91,7 @@ set +a
       steps {
         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
           sh '''
-promptfoo eval --config promptfoo.yaml --format json --output promptfoo-results.json
+promptfoo eval --config promptfoo.yaml -o promptfoo-results.json --no-table --no-share
 '''
         }
         sh '[ -f promptfoo-results.json ] || echo "{}" > promptfoo-results.json'
@@ -102,7 +102,6 @@ promptfoo eval --config promptfoo.yaml --format json --output promptfoo-results.
     stage('Log Promptfoo to MLflow') {
       steps {
         sh '''
-source .venv/bin/activate || true
 python src/steps/security/log_promptfoo_to_mlflow.py
 '''
       }
