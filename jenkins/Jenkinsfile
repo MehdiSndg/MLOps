@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'mlops-base:latest'
-      args '-u root'
+      args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
 
@@ -87,22 +87,20 @@ set +a
       }
     }
 
-    stage('ML Security Scan') {
+    stage('Promptfoo Security Scan (OWASP + ATLAS)') {
       steps {
         sh '''
-bandit -r src -f json -o bandit_report.json || true
-safety check --json --file requirements.txt > safety_report.json || true
-python src/steps/security/run_presidio_scan.py --input data/processed/processed.csv --output presidio_report.json || true
-trivy fs --security-checks vuln,secret --format json --output trivy_report.json . || true
+promptfoo test promptfoo.yaml --output promptfoo-results.json
 '''
-        archiveArtifacts artifacts: 'bandit_report.json,safety_report.json,presidio_report.json,trivy_report.json', allowEmptyArchive: true, fingerprint: true
+        archiveArtifacts artifacts: 'promptfoo-results.json', fingerprint: true
       }
     }
 
-    stage('Log Security Metrics') {
+    stage('Log Promptfoo to MLflow') {
       steps {
         sh '''
-python ml_security_logger.py --reports bandit_report.json safety_report.json presidio_report.json trivy_report.json
+source .venv/bin/activate || true
+python src/steps/security/log_promptfoo_to_mlflow.py
 '''
       }
     }

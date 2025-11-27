@@ -13,7 +13,3 @@ catboost==1.2.8
 xgboost==3.0.5
 passlib==1.7.4
 typing_extensions>=4.9.0
-bandit==1.7.9
-safety==3.2.3
-presidio-analyzer==2.2.354
-presidio-anonymizer==2.2.354
