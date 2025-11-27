@@ -90,7 +90,7 @@ set +a
     stage('Promptfoo Security Scan (OWASP + ATLAS)') {
       steps {
         sh '''
-promptfoo test promptfoo.yaml --output promptfoo-results.json
+promptfoo eval --config promptfoo.yaml --output promptfoo-results.json
 '''
         archiveArtifacts artifacts: 'promptfoo-results.json', fingerprint: true
       }
