@@ -1,5 +1,5 @@
 providers:
-  - "noop"
+  - "mock:echo"
 description: "LLM Security Testing (OWASP + ATLAS)"
 
 tests:

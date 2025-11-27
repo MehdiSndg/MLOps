@@ -91,7 +91,7 @@ set +a
       steps {
         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
           sh '''
-promptfoo eval --config promptfoo.yaml --providers noop -o promptfoo-results.json --no-table --no-share
+promptfoo eval --config promptfoo.yaml --providers mock:echo -o promptfoo-results.json --no-table --no-share
 '''
         }
         sh '[ -f promptfoo-results.json ] || echo "{}" > promptfoo-results.json'
