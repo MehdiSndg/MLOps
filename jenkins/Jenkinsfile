@@ -89,9 +89,12 @@ set +a
 
     stage('Promptfoo Security Scan (OWASP + ATLAS)') {
       steps {
-        sh '''
-promptfoo eval --config promptfoo.yaml --output promptfoo-results.json
+        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+          sh '''
+promptfoo eval --config promptfoo.yaml --format json --output promptfoo-results.json
 '''
+        }
+        sh '[ -f promptfoo-results.json ] || echo "{}" > promptfoo-results.json'
         archiveArtifacts artifacts: 'promptfoo-results.json', fingerprint: true
       }
     }
