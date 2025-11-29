@@ -98,7 +98,7 @@ set +a
             python -m venv .pyrit-venv
             . .pyrit-venv/bin/activate
             pip install --upgrade pip
-            pip install pyrit
+            pip install --no-cache-dir pyrit mlflow==2.15.1
             python src/steps/security/run_pyrit_scan.py
             deactivate
             rm -rf .pyrit-venv
