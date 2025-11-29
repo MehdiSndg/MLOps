@@ -36,6 +36,9 @@ def run_pyrit_scan(output_path="artifacts/security/pyrit_report.json"):
 if __name__ == "__main__":
     output_path = run_pyrit_scan()
 
-    mlflow.start_run(run_name="pyrit-security")
-    mlflow.log_artifact(output_path, artifact_path="security")
-    mlflow.end_run()
+    try:
+        mlflow.start_run(run_name="pyrit-security")
+        mlflow.log_artifact(output_path, artifact_path="security")
+        mlflow.end_run()
+    except Exception as exc:  # pylint: disable=broad-except
+        print(f"[WARN] MLflow logging for PyRIT scan failed: {exc}")
