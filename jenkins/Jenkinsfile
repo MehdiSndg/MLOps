@@ -94,6 +94,8 @@ set +a
             . ./.env
             set +a
 
+            export MLFLOW_TRACKING_URI=\"${MLFLOW_TRACKING_URI:-http://host.docker.internal:5001}\"
+
             echo "Running PyRIT AI Red Team Security Scan..."
             python -m venv .pyrit-venv
             . .pyrit-venv/bin/activate
