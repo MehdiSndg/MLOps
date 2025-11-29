@@ -87,23 +87,22 @@ set +a
       }
     }
 
-    stage('Promptfoo Security Scan (OWASP + ATLAS)') {
-      steps {
-        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-          sh '''
-promptfoo eval --config promptfoo.yaml --providers mock:echo -o promptfoo-results.json --no-table --no-share
-'''
-        }
-        sh '[ -f promptfoo-results.json ] || echo "{}" > promptfoo-results.json'
-        archiveArtifacts artifacts: 'promptfoo-results.json', fingerprint: true
-      }
-    }
-
-    stage('Log Promptfoo to MLflow') {
+    stage('Security Scan (PyRIT)') {
       steps {
         sh '''
-python src/steps/security/log_promptfoo_to_mlflow.py
-'''
+            set -a
+            . ./.env
+            set +a
+
+            echo "Running PyRIT AI Red Team Security Scan..."
+            python -m venv .pyrit-venv
+            . .pyrit-venv/bin/activate
+            pip install --upgrade pip
+            pip install pyrit
+            python src/steps/security/run_pyrit_scan.py
+            deactivate
+            rm -rf .pyrit-venv
+        '''
       }
     }
 
